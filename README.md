@@ -8,4 +8,4 @@ For [Activiti](https://www.activiti.org/) only examples, referer to [this reposi
 
 ## Invoice Approval
 
-[This project](https://www.activiti.org/) will take you through implementing a business process with Alfresco Process Services. It builds a simple Invoice Payment Approval Process.
+[This project](invoice-approval) will take you through implementing a business process with Alfresco Process Services. It builds a simple Invoice Payment Approval Process.

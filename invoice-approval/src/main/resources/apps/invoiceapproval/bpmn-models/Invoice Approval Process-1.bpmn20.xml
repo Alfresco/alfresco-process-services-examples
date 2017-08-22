@@ -1,0 +1,303 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/processdef" xmlns:modeler="http://activiti.com/modeler" modeler:version="1.0en" modeler:exportDateTime="20161026100934314" modeler:modelId="1" modeler:modelVersion="23" modeler:modelLastUpdated="1477391752115">
+  <process id="InvoiceApprovalProcess" name="Invoice Approval Process" isExecutable="true">
+    <documentation>This is a simple invoice approval process that allows a person to assign a dedicated approver for the the invoice. It will then be routed to the Accounting department for payment preparation. Once payment is prepared the invoice will be stored in a specific folder and an email notification will be sent.</documentation>
+    <startEvent id="startInvoiceProcess" name="Start Invoice Process" activiti:formKey="4">
+      <extensionElements>
+        <modeler:form-reference-id><![CDATA[4]]></modeler:form-reference-id>
+        <modeler:form-reference-name><![CDATA[Start Invoice Approval Form]]></modeler:form-reference-name>
+        <modeler:editor-resource-id><![CDATA[startEvent1]]></modeler:editor-resource-id>
+      </extensionElements>
+    </startEvent>
+    <userTask id="approveInvoice" name="Approve Invoice" activiti:async="true" activiti:exclusive="false" activiti:assignee="${taskAssignmentBean.assignTaskToAssignee('approver', execution)}" activiti:formKey="3">
+      <extensionElements>
+        <activiti:executionListener event="start" class="com.activiti.runtime.activiti.ContentProcessorExecutionListener">
+          <activiti:field name="externalContentHandler">
+            <activiti:expression><![CDATA[${externalContentHandler}]]></activiti:expression>
+          </activiti:field>
+        </activiti:executionListener>
+        <activiti:taskListener event="create" class="org.activiti.engine.impl.bpmn.listener.ScriptTaskListener">
+          <activiti:field name="script">
+            <activiti:string><![CDATA[var execution = task.getExecution();
+
+var contentList = relatedContentService.getFieldContentForProcessInstance(
+                execution.getProcessInstanceId(), 'invoicetobeapproved', 1, 0).getContent();
+
+var invoiceFileName = ' - [UNKNOWN]';
+if (typeof contentList != 'undefined' && contentList.length > 0) {
+    invoiceFileName = ' - [' + contentList.get(0).getName() + ']';
+}
+
+execution.setVariable('invoiceFileName', invoiceFileName);
+
+task.name  = "Approve Invoice " +  invoiceFileName;]]></activiti:string>
+          </activiti:field>
+          <activiti:field name="language">
+            <activiti:string><![CDATA[javascript]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+        <modeler:allow-send-email><![CDATA[true]]></modeler:allow-send-email>
+        <modeler:form-reference-id><![CDATA[3]]></modeler:form-reference-id>
+        <modeler:form-reference-name><![CDATA[Approve Invoice]]></modeler:form-reference-name>
+        <modeler:activiti-idm-assignee-field><![CDATA[approver]]></modeler:activiti-idm-assignee-field>
+        <modeler:assignee-field-info-name><![CDATA[Approver]]></modeler:assignee-field-info-name>
+        <modeler:initiator-can-complete><![CDATA[false]]></modeler:initiator-can-complete>
+        <modeler:editor-resource-id><![CDATA[sid-0B19FE33-967B-4C3A-8DC4-E7D7C6B7069A]]></modeler:editor-resource-id>
+        <modeler:ignore-listener-on-import><![CDATA[com.activiti.runtime.activiti.ContentProcessorExecutionListener]]></modeler:ignore-listener-on-import>
+      </extensionElements>
+    </userTask>
+    <exclusiveGateway id="sid-CAB02718-6E2B-43BC-9BE3-56051673765D">
+      <extensionElements>
+        <modeler:editor-resource-id><![CDATA[sid-CAB02718-6E2B-43BC-9BE3-56051673765D]]></modeler:editor-resource-id>
+      </extensionElements>
+    </exclusiveGateway>
+    <userTask id="clarifyInvoice" name="Clarify Invoice" activiti:assignee="$INITIATOR" activiti:formKey="5">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.activiti.engine.impl.bpmn.listener.ScriptTaskListener">
+          <activiti:field name="script">
+            <activiti:string><![CDATA[task.name = task.getExecution().getVariable('invoiceFileName');]]></activiti:string>
+          </activiti:field>
+          <activiti:field name="language">
+            <activiti:string><![CDATA[javascript]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+        <modeler:allow-send-email><![CDATA[true]]></modeler:allow-send-email>
+        <modeler:form-reference-id><![CDATA[5]]></modeler:form-reference-id>
+        <modeler:form-reference-name><![CDATA[Clarify Invoice]]></modeler:form-reference-name>
+        <modeler:activiti-idm-initiator><![CDATA[true]]></modeler:activiti-idm-initiator>
+        <modeler:editor-resource-id><![CDATA[sid-7881C278-D026-4861-A145-9482D5812195]]></modeler:editor-resource-id>
+      </extensionElements>
+    </userTask>
+    <endEvent id="sid-DDA7657B-723B-4ECE-A4FC-EBD2221875DD" name="End Process">
+      <extensionElements>
+        <modeler:editor-resource-id><![CDATA[sid-DDA7657B-723B-4ECE-A4FC-EBD2221875DD]]></modeler:editor-resource-id>
+      </extensionElements>
+    </endEvent>
+    <exclusiveGateway id="sid-C0AD2F51-A40A-429B-B58A-504174CD87EF">
+      <extensionElements>
+        <modeler:editor-resource-id><![CDATA[sid-C0AD2F51-A40A-429B-B58A-504174CD87EF]]></modeler:editor-resource-id>
+      </extensionElements>
+    </exclusiveGateway>
+    <sequenceFlow id="sid-4FB987CC-35CD-48BB-98DF-AA9927277F57" sourceRef="clarifyInvoice" targetRef="sid-C0AD2F51-A40A-429B-B58A-504174CD87EF">
+      <extensionElements>
+        <modeler:editor-resource-id><![CDATA[sid-4FB987CC-35CD-48BB-98DF-AA9927277F57]]></modeler:editor-resource-id>
+      </extensionElements>
+    </sequenceFlow>
+    <sequenceFlow id="sid-14B86B2F-7531-431F-8E05-3C010FE7D0CF" name="Clarified" sourceRef="sid-C0AD2F51-A40A-429B-B58A-504174CD87EF" targetRef="approveInvoice">
+      <extensionElements>
+        <modeler:conditionDefinition modeler:index="0" modeler:outcomeFormId="5" modeler:outcomeFormName="Clarify Invoice" modeler:rightOutcomeName="Clarified" modeler:operator="=="/>
+        <modeler:editor-resource-id><![CDATA[sid-14B86B2F-7531-431F-8E05-3C010FE7D0CF]]></modeler:editor-resource-id>
+      </extensionElements>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(activiti_flowConditionsBean.exists(execution, 'form5outcome') && form5outcome == 'Clarified')}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-CD9B2EFC-E410-4F5F-A3CD-B4F0C2E1FE42" name="Payment Rejected" sourceRef="sid-C0AD2F51-A40A-429B-B58A-504174CD87EF" targetRef="sid-DDA7657B-723B-4ECE-A4FC-EBD2221875DD">
+      <extensionElements>
+        <modeler:conditionDefinition modeler:index="0" modeler:outcomeFormId="5" modeler:outcomeFormName="Clarify Invoice" modeler:rightOutcomeName="Rejected" modeler:operator="=="/>
+        <modeler:editor-resource-id><![CDATA[sid-CD9B2EFC-E410-4F5F-A3CD-B4F0C2E1FE42]]></modeler:editor-resource-id>
+      </extensionElements>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(activiti_flowConditionsBean.exists(execution, 'form5outcome') && form5outcome == 'Rejected')}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-E1BE5653-D85F-4688-AA53-7BDBA385C628" name="Rejected" sourceRef="sid-CAB02718-6E2B-43BC-9BE3-56051673765D" targetRef="clarifyInvoice">
+      <extensionElements>
+        <modeler:conditionDefinition modeler:index="0" modeler:outcomeFormId="3" modeler:outcomeFormName="Approve Invoice" modeler:rightOutcomeName="Reject" modeler:operator="=="/>
+        <modeler:editor-resource-id><![CDATA[sid-E1BE5653-D85F-4688-AA53-7BDBA385C628]]></modeler:editor-resource-id>
+      </extensionElements>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(activiti_flowConditionsBean.exists(execution, 'form3outcome') && form3outcome == 'Reject')}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask id="preparePayment" name="Prepare Payment" activiti:candidateGroups="1001" activiti:formKey="1001">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.activiti.engine.impl.bpmn.listener.ScriptTaskListener">
+          <activiti:field name="script">
+            <activiti:string><![CDATA[var execution = task.getExecution();
+var isEscalated = execution.getVariable('preparePaymentEscalated');
+var invoiceFileName = execution.getVariable('invoiceFileName');
+var taskDescription = "Prepare Payment for " + invoiceFileName;
+if (typeof isEscalated != 'undefined' && isEscalated == true) {
+    taskDescription = "ESCALATED: " + taskDescription;
+}
+task.name = taskDescription;]]></activiti:string>
+          </activiti:field>
+          <activiti:field name="language">
+            <activiti:string><![CDATA[javascript]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+        <modeler:allow-send-email><![CDATA[true]]></modeler:allow-send-email>
+        <modeler:form-reference-id><![CDATA[1001]]></modeler:form-reference-id>
+        <modeler:form-reference-name><![CDATA[Prepare Payment]]></modeler:form-reference-name>
+        <modeler:group-info-name-1001><![CDATA[Accounting]]></modeler:group-info-name-1001>
+        <modeler:activiti-idm-candidate-group><![CDATA[true]]></modeler:activiti-idm-candidate-group>
+        <modeler:initiator-can-complete><![CDATA[false]]></modeler:initiator-can-complete>
+        <modeler:editor-resource-id><![CDATA[sid-A1F0D372-C9AE-4C09-8E73-259B8DEE7984]]></modeler:editor-resource-id>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="sid-E3E736B6-8B7F-405C-844B-816AD6858A05" name="Approved" sourceRef="sid-CAB02718-6E2B-43BC-9BE3-56051673765D" targetRef="preparePayment">
+      <extensionElements>
+        <modeler:conditionDefinition modeler:index="0" modeler:outcomeFormId="3" modeler:outcomeFormName="Approve Invoice" modeler:rightOutcomeName="Approve" modeler:operator="=="/>
+        <modeler:editor-resource-id><![CDATA[sid-E3E736B6-8B7F-405C-844B-816AD6858A05]]></modeler:editor-resource-id>
+      </extensionElements>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(activiti_flowConditionsBean.exists(execution, 'form3outcome') && form3outcome == 'Approve')}]]></conditionExpression>
+    </sequenceFlow>
+    <serviceTask id="fileInvoice" name="File Invoice" activiti:delegateExpression="${fileInvoiceServiceTaskDelegate}">
+      <extensionElements>
+        <activiti:field name="companyEmail">
+          <activiti:expression><![CDATA[${companyemail}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="invoiceToFile">
+          <activiti:expression><![CDATA[${invoicetobeapproved}]]></activiti:expression>
+        </activiti:field>
+        <modeler:editor-resource-id><![CDATA[sid-AD13E6C6-02D8-4F34-9493-56F415729255]]></modeler:editor-resource-id>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="sid-32971BD5-72D6-4923-B167-2472589908A9" sourceRef="preparePayment" targetRef="fileInvoice">
+      <extensionElements>
+        <modeler:editor-resource-id><![CDATA[sid-32971BD5-72D6-4923-B167-2472589908A9]]></modeler:editor-resource-id>
+      </extensionElements>
+    </sequenceFlow>
+    <boundaryEvent id="escalatePreparePayment" name="Escalate task" attachedToRef="preparePayment" cancelActivity="true">
+      <extensionElements>
+        <modeler:editor-resource-id><![CDATA[sid-97D88681-3BA0-45BE-BB0A-4354A0884921]]></modeler:editor-resource-id>
+      </extensionElements>
+      <timerEventDefinition>
+        <timeDuration>PT2M</timeDuration>
+      </timerEventDefinition>
+    </boundaryEvent>
+    <serviceTask id="sendApprovalEmail" name="Send Approval Email" activiti:type="mail">
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:expression><![CDATA[${emailBean.getProcessInitiator(execution)}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="from">
+          <activiti:string><![CDATA[activiti@mycompany.com]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="subject">
+          <activiti:string><![CDATA[Invoice Approved for Payment]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="cc">
+          <activiti:expression><![CDATA[${companyemail}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="text">
+          <activiti:string><![CDATA[Invoice Approved for Payment]]></activiti:string>
+        </activiti:field>
+        <modeler:mail-to-initiator><![CDATA[true]]></modeler:mail-to-initiator>
+        <modeler:editor-resource-id><![CDATA[sid-1093876B-D83A-4049-BCA8-01C3DCE79340]]></modeler:editor-resource-id>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="sid-B76B8F48-3830-4DCD-8FE1-8890BDB4777A" sourceRef="fileInvoice" targetRef="sendApprovalEmail">
+      <extensionElements>
+        <modeler:editor-resource-id><![CDATA[sid-B76B8F48-3830-4DCD-8FE1-8890BDB4777A]]></modeler:editor-resource-id>
+      </extensionElements>
+    </sequenceFlow>
+    <sequenceFlow id="sid-30162F38-6CE2-469A-8F74-C2DDA954ACDF" sourceRef="sendApprovalEmail" targetRef="sid-DDA7657B-723B-4ECE-A4FC-EBD2221875DD">
+      <extensionElements>
+        <modeler:editor-resource-id><![CDATA[sid-30162F38-6CE2-469A-8F74-C2DDA954ACDF]]></modeler:editor-resource-id>
+      </extensionElements>
+    </sequenceFlow>
+    <sequenceFlow id="sid-39DF518F-67D6-4026-A426-5CB473AA8812" sourceRef="approveInvoice" targetRef="sid-CAB02718-6E2B-43BC-9BE3-56051673765D">
+      <extensionElements>
+        <modeler:editor-resource-id><![CDATA[sid-39DF518F-67D6-4026-A426-5CB473AA8812]]></modeler:editor-resource-id>
+      </extensionElements>
+    </sequenceFlow>
+    <sequenceFlow id="sid-E8390411-BE83-4854-A63F-A12927F29D86" sourceRef="startInvoiceProcess" targetRef="approveInvoice">
+      <extensionElements>
+        <modeler:editor-resource-id><![CDATA[sid-E8390411-BE83-4854-A63F-A12927F29D86]]></modeler:editor-resource-id>
+      </extensionElements>
+    </sequenceFlow>
+    <sequenceFlow id="sid-E174B2BB-83BF-4443-893A-A411488FE30A" name="Escalate" sourceRef="escalatePreparePayment" targetRef="preparePayment">
+      <extensionElements>
+        <activiti:executionListener event="take" class="org.activiti.engine.impl.bpmn.listener.ScriptExecutionListener">
+          <activiti:field name="script">
+            <activiti:string><![CDATA[execution.setVariable('preparePaymentEscalated', true);]]></activiti:string>
+          </activiti:field>
+          <activiti:field name="language">
+            <activiti:string><![CDATA[javascript]]></activiti:string>
+          </activiti:field>
+        </activiti:executionListener>
+        <modeler:editor-resource-id><![CDATA[sid-E174B2BB-83BF-4443-893A-A411488FE30A]]></modeler:editor-resource-id>
+      </extensionElements>
+    </sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_InvoiceApprovalProcess">
+    <bpmndi:BPMNPlane bpmnElement="InvoiceApprovalProcess" id="BPMNPlane_InvoiceApprovalProcess">
+      <bpmndi:BPMNShape bpmnElement="startInvoiceProcess" id="BPMNShape_startInvoiceProcess">
+        <omgdc:Bounds height="30.0" width="30.0" x="45.0" y="295.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="approveInvoice" id="BPMNShape_approveInvoice">
+        <omgdc:Bounds height="80.0" width="100.0" x="155.0" y="270.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-CAB02718-6E2B-43BC-9BE3-56051673765D" id="BPMNShape_sid-CAB02718-6E2B-43BC-9BE3-56051673765D">
+        <omgdc:Bounds height="40.0" width="40.0" x="350.0" y="290.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="clarifyInvoice" id="BPMNShape_clarifyInvoice">
+        <omgdc:Bounds height="80.0" width="100.0" x="320.0" y="129.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-DDA7657B-723B-4ECE-A4FC-EBD2221875DD" id="BPMNShape_sid-DDA7657B-723B-4ECE-A4FC-EBD2221875DD">
+        <omgdc:Bounds height="28.0" width="28.0" x="780.0" y="296.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-C0AD2F51-A40A-429B-B58A-504174CD87EF" id="BPMNShape_sid-C0AD2F51-A40A-429B-B58A-504174CD87EF">
+        <omgdc:Bounds height="40.0" width="40.0" x="548.5" y="149.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="preparePayment" id="BPMNShape_preparePayment">
+        <omgdc:Bounds height="80.0" width="100.0" x="498.75" y="270.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="fileInvoice" id="BPMNShape_fileInvoice">
+        <omgdc:Bounds height="80.0" width="100.0" x="498.75" y="435.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="escalatePreparePayment" id="BPMNShape_escalatePreparePayment">
+        <omgdc:Bounds height="31.0" width="31.0" x="582.7585358751163" y="334.725685398532"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sendApprovalEmail" id="BPMNShape_sendApprovalEmail">
+        <omgdc:Bounds height="80.0" width="100.0" x="660.0" y="435.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sid-14B86B2F-7531-431F-8E05-3C010FE7D0CF" id="BPMNEdge_sid-14B86B2F-7531-431F-8E05-3C010FE7D0CF">
+        <omgdi:waypoint x="569.0" y="149.5"/>
+        <omgdi:waypoint x="569.0" y="73.0"/>
+        <omgdi:waypoint x="205.0" y="73.0"/>
+        <omgdi:waypoint x="205.0" y="270.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-30162F38-6CE2-469A-8F74-C2DDA954ACDF" id="BPMNEdge_sid-30162F38-6CE2-469A-8F74-C2DDA954ACDF">
+        <omgdi:waypoint x="760.0" y="475.0"/>
+        <omgdi:waypoint x="794.0" y="475.0"/>
+        <omgdi:waypoint x="794.0" y="324.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-E1BE5653-D85F-4688-AA53-7BDBA385C628" id="BPMNEdge_sid-E1BE5653-D85F-4688-AA53-7BDBA385C628">
+        <omgdi:waypoint x="370.42907801418437" y="290.42907801418437"/>
+        <omgdi:waypoint x="370.14134275618375" y="209.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-E3E736B6-8B7F-405C-844B-816AD6858A05" id="BPMNEdge_sid-E3E736B6-8B7F-405C-844B-816AD6858A05">
+        <omgdi:waypoint x="389.5534458509142" y="310.4465541490858"/>
+        <omgdi:waypoint x="498.75" y="310.1402524544179"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-E174B2BB-83BF-4443-893A-A411488FE30A" id="BPMNEdge_sid-E174B2BB-83BF-4443-893A-A411488FE30A">
+        <omgdi:waypoint x="636.7414641248837" y="348.0"/>
+        <omgdi:waypoint x="654.5" y="348.0"/>
+        <omgdi:waypoint x="654.5" y="311.0"/>
+        <omgdi:waypoint x="598.75" y="310.4728132387707"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-E8390411-BE83-4854-A63F-A12927F29D86" id="BPMNEdge_sid-E8390411-BE83-4854-A63F-A12927F29D86">
+        <omgdi:waypoint x="75.0" y="310.0"/>
+        <omgdi:waypoint x="155.0" y="310.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-4FB987CC-35CD-48BB-98DF-AA9927277F57" id="BPMNEdge_sid-4FB987CC-35CD-48BB-98DF-AA9927277F57">
+        <omgdi:waypoint x="420.0" y="169.0"/>
+        <omgdi:waypoint x="548.5" y="169.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-B76B8F48-3830-4DCD-8FE1-8890BDB4777A" id="BPMNEdge_sid-B76B8F48-3830-4DCD-8FE1-8890BDB4777A">
+        <omgdi:waypoint x="598.75" y="475.0"/>
+        <omgdi:waypoint x="660.0" y="475.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-39DF518F-67D6-4026-A426-5CB473AA8812" id="BPMNEdge_sid-39DF518F-67D6-4026-A426-5CB473AA8812">
+        <omgdi:waypoint x="255.0" y="310.0"/>
+        <omgdi:waypoint x="350.0" y="310.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-CD9B2EFC-E410-4F5F-A3CD-B4F0C2E1FE42" id="BPMNEdge_sid-CD9B2EFC-E410-4F5F-A3CD-B4F0C2E1FE42">
+        <omgdi:waypoint x="588.0" y="169.5"/>
+        <omgdi:waypoint x="794.0" y="169.5"/>
+        <omgdi:waypoint x="794.0" y="296.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-32971BD5-72D6-4923-B167-2472589908A9" id="BPMNEdge_sid-32971BD5-72D6-4923-B167-2472589908A9">
+        <omgdi:waypoint x="548.75" y="350.0"/>
+        <omgdi:waypoint x="548.75" y="435.0"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

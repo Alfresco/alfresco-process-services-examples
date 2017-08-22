@@ -1,0 +1,1160 @@
+{
+  "resourceId": 1,
+  "properties": {
+    "process_id": "InvoiceApprovalProcess",
+    "name": "Invoice Approval Process",
+    "documentation": "This is a simple invoice approval process that allows a person to assign a dedicated approver for the the invoice. It will then be routed to the Accounting department for payment preparation. Once payment is prepared the invoice will be stored in a specific folder and an email notification will be sent.",
+    "process_author": "",
+    "process_version": "",
+    "process_namespace": "http://www.activiti.org/processdef",
+    "executionlisteners": "",
+    "eventlisteners": "",
+    "signaldefinitions": "",
+    "messagedefinitions": "",
+    "executionvariables": "",
+    "metadata": ""
+  },
+  "stencil": {
+    "id": "BPMNDiagram"
+  },
+  "childShapes": [
+    {
+      "resourceId": "startEvent1",
+      "properties": {
+        "overrideid": "startInvoiceProcess",
+        "name": "Start Invoice Process",
+        "documentation": "",
+        "executionlisteners": null,
+        "initiator": "",
+        "formkeydefinition": "",
+        "formreference": {
+          "id": 4,
+          "name": "Start Invoice Approval Form",
+          "referenceId": 1
+        },
+        "fieldstovariables": "",
+        "formproperties": ""
+      },
+      "stencil": {
+        "id": "StartNoneEvent"
+      },
+      "childShapes": [],
+      "outgoing": [
+        {
+          "resourceId": "sid-E8390411-BE83-4854-A63F-A12927F29D86"
+        }
+      ],
+      "bounds": {
+        "lowerRight": {
+          "x": 75,
+          "y": 325
+        },
+        "upperLeft": {
+          "x": 45,
+          "y": 295
+        }
+      },
+      "dockers": []
+    },
+    {
+      "resourceId": "sid-0B19FE33-967B-4C3A-8DC4-E7D7C6B7069A",
+      "properties": {
+        "overrideid": "approveInvoice",
+        "name": "Approve Invoice",
+        "documentation": "",
+        "asynchronousdefinition": "false",
+        "exclusivedefinition": "false",
+        "executionlisteners": "",
+        "multiinstance_type": "None",
+        "multiinstance_cardinality": "",
+        "multiinstance_collection": "",
+        "multiinstance_variable": "",
+        "multiinstance_condition": "",
+        "isforcompensation": "false",
+        "usertasksendemail": true,
+        "usertaskassignment": {
+          "assignment": {
+            "type": "idm",
+            "idm": {
+              "type": "user",
+              "assigneeField": {
+                "id": "approver",
+                "name": "Approver",
+                "type": "people"
+              }
+            }
+          }
+        },
+        "formkeydefinition": "",
+        "formreference": {
+          "id": 3,
+          "name": "Approve Invoice",
+          "referenceId": 1
+        },
+        "fieldstovariables": "",
+        "duedatedefinition": "",
+        "prioritydefinition": "",
+        "categorydefinition": "",
+        "formproperties": "",
+        "tasklisteners": {
+          "taskListeners": [
+            {
+              "event": "create",
+              "implementation": "org.activiti.engine.impl.bpmn.listener.ScriptTaskListener",
+              "className": "org.activiti.engine.impl.bpmn.listener.ScriptTaskListener",
+              "expression": "",
+              "delegateExpression": "",
+              "fields": [
+                {
+                  "name": "script",
+                  "implementation": "var execution = task.getExecution();\n\nvar contentList = relatedContentService.getFieldContentForProcessInstance(\n                execution.getProcessInstanceId(), 'invoicetobeapproved', 1, 0).getContent();\n\nvar invoiceFileName = ' - [UNKNOWN]';\nif (typeof contentList != 'undefined' && contentList.length > 0) {\n    invoiceFileName = ' - [' + contentList.get(0).getName() + ']';\n}\n\nexecution.setVariable('invoiceFileName', invoiceFileName);\n\ntask.name  = \"Approve Invoice \" +  invoiceFileName;",
+                  "stringValue": "",
+                  "expression": "",
+                  "string": "var execution = task.getExecution();\n\nvar contentList = relatedContentService.getFieldContentForProcessInstance(\n                execution.getProcessInstanceId(), 'invoicetobeapproved', 1, 0).getContent();\n\nvar invoiceFileName = ' - [UNKNOWN]';\nif (typeof contentList != 'undefined' && contentList.length > 0) {\n    invoiceFileName = ' - [' + contentList.get(0).getName() + ']';\n}\n\nexecution.setVariable('invoiceFileName', invoiceFileName);\n\ntask.name  = \"Approve Invoice \" +  invoiceFileName;",
+                  "$$hashKey": "uiGrid-000N"
+                },
+                {
+                  "name": "language",
+                  "implementation": "javascript",
+                  "stringValue": "javascript",
+                  "expression": "",
+                  "string": "",
+                  "$$hashKey": "uiGrid-000P"
+                }
+              ],
+              "$$hashKey": "uiGrid-000D"
+            }
+          ]
+        },
+        "emailtemplate": ""
+      },
+      "stencil": {
+        "id": "UserTask"
+      },
+      "childShapes": [],
+      "outgoing": [
+        {
+          "resourceId": "sid-39DF518F-67D6-4026-A426-5CB473AA8812"
+        }
+      ],
+      "bounds": {
+        "lowerRight": {
+          "x": 255,
+          "y": 350
+        },
+        "upperLeft": {
+          "x": 155,
+          "y": 270
+        }
+      },
+      "dockers": []
+    },
+    {
+      "resourceId": "sid-CAB02718-6E2B-43BC-9BE3-56051673765D",
+      "properties": {
+        "overrideid": "",
+        "name": "",
+        "documentation": "",
+        "asynchronousdefinition": "false",
+        "exclusivedefinition": "false",
+        "sequencefloworder": ""
+      },
+      "stencil": {
+        "id": "ExclusiveGateway"
+      },
+      "childShapes": [],
+      "outgoing": [
+        {
+          "resourceId": "sid-E1BE5653-D85F-4688-AA53-7BDBA385C628"
+        },
+        {
+          "resourceId": "sid-E3E736B6-8B7F-405C-844B-816AD6858A05"
+        }
+      ],
+      "bounds": {
+        "lowerRight": {
+          "x": 390,
+          "y": 330
+        },
+        "upperLeft": {
+          "x": 350,
+          "y": 290
+        }
+      },
+      "dockers": []
+    },
+    {
+      "resourceId": "sid-7881C278-D026-4861-A145-9482D5812195",
+      "properties": {
+        "overrideid": "clarifyInvoice",
+        "name": "Clarify Invoice",
+        "documentation": "",
+        "asynchronousdefinition": "false",
+        "exclusivedefinition": "false",
+        "executionlisteners": "",
+        "multiinstance_type": "None",
+        "multiinstance_cardinality": "",
+        "multiinstance_collection": "",
+        "multiinstance_variable": "",
+        "multiinstance_condition": "",
+        "isforcompensation": "false",
+        "usertasksendemail": true,
+        "usertaskassignment": "",
+        "formkeydefinition": "",
+        "formreference": {
+          "id": 5,
+          "name": "Clarify Invoice",
+          "referenceId": 1
+        },
+        "fieldstovariables": "",
+        "duedatedefinition": "",
+        "prioritydefinition": "",
+        "categorydefinition": "",
+        "formproperties": "",
+        "tasklisteners": {
+          "taskListeners": [
+            {
+              "event": "create",
+              "implementation": "org.activiti.engine.impl.bpmn.listener.ScriptTaskListener",
+              "className": "org.activiti.engine.impl.bpmn.listener.ScriptTaskListener",
+              "expression": "",
+              "delegateExpression": "",
+              "fields": [
+                {
+                  "name": "script",
+                  "implementation": "task.name = task.getExecution().getVariable('invoiceFileName');",
+                  "stringValue": "",
+                  "expression": "",
+                  "string": "task.name = task.getExecution().getVariable('invoiceFileName');",
+                  "$$hashKey": "uiGrid-006X"
+                },
+                {
+                  "name": "language",
+                  "implementation": "javascript",
+                  "stringValue": "javascript",
+                  "expression": "",
+                  "string": "",
+                  "$$hashKey": "uiGrid-006Z"
+                }
+              ],
+              "$$hashKey": "uiGrid-006N"
+            }
+          ]
+        },
+        "emailtemplate": ""
+      },
+      "stencil": {
+        "id": "UserTask"
+      },
+      "childShapes": [],
+      "outgoing": [
+        {
+          "resourceId": "sid-4FB987CC-35CD-48BB-98DF-AA9927277F57"
+        }
+      ],
+      "bounds": {
+        "lowerRight": {
+          "x": 420,
+          "y": 209
+        },
+        "upperLeft": {
+          "x": 320,
+          "y": 129
+        }
+      },
+      "dockers": []
+    },
+    {
+      "resourceId": "sid-DDA7657B-723B-4ECE-A4FC-EBD2221875DD",
+      "properties": {
+        "overrideid": "",
+        "name": "End Process",
+        "documentation": "",
+        "executionlisteners": ""
+      },
+      "stencil": {
+        "id": "EndNoneEvent"
+      },
+      "childShapes": [],
+      "outgoing": [],
+      "bounds": {
+        "lowerRight": {
+          "x": 808,
+          "y": 324
+        },
+        "upperLeft": {
+          "x": 780,
+          "y": 296
+        }
+      },
+      "dockers": []
+    },
+    {
+      "resourceId": "sid-C0AD2F51-A40A-429B-B58A-504174CD87EF",
+      "properties": {
+        "overrideid": "",
+        "name": "",
+        "documentation": "",
+        "asynchronousdefinition": "false",
+        "exclusivedefinition": "false",
+        "sequencefloworder": ""
+      },
+      "stencil": {
+        "id": "ExclusiveGateway"
+      },
+      "childShapes": [],
+      "outgoing": [
+        {
+          "resourceId": "sid-CD9B2EFC-E410-4F5F-A3CD-B4F0C2E1FE42"
+        },
+        {
+          "resourceId": "sid-14B86B2F-7531-431F-8E05-3C010FE7D0CF"
+        }
+      ],
+      "bounds": {
+        "lowerRight": {
+          "x": 588.5,
+          "y": 189
+        },
+        "upperLeft": {
+          "x": 548.5,
+          "y": 149
+        }
+      },
+      "dockers": []
+    },
+    {
+      "resourceId": "sid-4FB987CC-35CD-48BB-98DF-AA9927277F57",
+      "properties": {
+        "overrideid": "",
+        "name": "",
+        "documentation": "",
+        "conditionsequenceflow": "",
+        "executionlisteners": "",
+        "defaultflow": "false"
+      },
+      "stencil": {
+        "id": "SequenceFlow"
+      },
+      "childShapes": [],
+      "outgoing": [
+        {
+          "resourceId": "sid-C0AD2F51-A40A-429B-B58A-504174CD87EF"
+        }
+      ],
+      "bounds": {
+        "lowerRight": {
+          "x": 548.890625,
+          "y": 169
+        },
+        "upperLeft": {
+          "x": 420.625,
+          "y": 169
+        }
+      },
+      "dockers": [
+        {
+          "x": 50,
+          "y": 40
+        },
+        {
+          "x": 20,
+          "y": 20
+        }
+      ],
+      "target": {
+        "resourceId": "sid-C0AD2F51-A40A-429B-B58A-504174CD87EF"
+      }
+    },
+    {
+      "resourceId": "sid-14B86B2F-7531-431F-8E05-3C010FE7D0CF",
+      "properties": {
+        "overrideid": "",
+        "name": "Clarified",
+        "documentation": "",
+        "conditionsequenceflow": {
+          "expression": {
+            "type": "variables",
+            "operator": "==",
+            "outcomeFormId": 5,
+            "outcomeFormName": "Clarify Invoice",
+            "rightOutcomeName": "Clarified",
+            "rightOutcomeFormId": 5,
+            "rightOutcomeFormName": "Clarify Invoice"
+          }
+        },
+        "executionlisteners": "",
+        "defaultflow": "false",
+        "showdiamondmarker": false
+      },
+      "stencil": {
+        "id": "SequenceFlow"
+      },
+      "childShapes": [],
+      "outgoing": [
+        {
+          "resourceId": "sid-0B19FE33-967B-4C3A-8DC4-E7D7C6B7069A"
+        }
+      ],
+      "bounds": {
+        "lowerRight": {
+          "x": 569,
+          "y": 270
+        },
+        "upperLeft": {
+          "x": 205,
+          "y": 73
+        }
+      },
+      "dockers": [
+        {
+          "x": 20.5,
+          "y": 20.5
+        },
+        {
+          "x": 569,
+          "y": 73
+        },
+        {
+          "x": 205,
+          "y": 73
+        },
+        {
+          "x": 50,
+          "y": 1
+        }
+      ],
+      "target": {
+        "resourceId": "sid-0B19FE33-967B-4C3A-8DC4-E7D7C6B7069A"
+      }
+    },
+    {
+      "resourceId": "sid-CD9B2EFC-E410-4F5F-A3CD-B4F0C2E1FE42",
+      "properties": {
+        "overrideid": "",
+        "name": "Payment Rejected",
+        "documentation": "",
+        "conditionsequenceflow": {
+          "expression": {
+            "type": "variables",
+            "operator": "==",
+            "outcomeFormId": 5,
+            "outcomeFormName": "Clarify Invoice",
+            "rightOutcomeName": "Rejected",
+            "rightOutcomeFormId": 5,
+            "rightOutcomeFormName": "Clarify Invoice"
+          }
+        },
+        "executionlisteners": "",
+        "defaultflow": "false"
+      },
+      "stencil": {
+        "id": "SequenceFlow"
+      },
+      "childShapes": [],
+      "outgoing": [
+        {
+          "resourceId": "sid-DDA7657B-723B-4ECE-A4FC-EBD2221875DD"
+        }
+      ],
+      "bounds": {
+        "lowerRight": {
+          "x": 794,
+          "y": 295.828125
+        },
+        "upperLeft": {
+          "x": 589.3359375,
+          "y": 169.5
+        }
+      },
+      "dockers": [
+        {
+          "x": 20.5,
+          "y": 20.5
+        },
+        {
+          "x": 794,
+          "y": 169.5
+        },
+        {
+          "x": 14,
+          "y": 14
+        }
+      ],
+      "target": {
+        "resourceId": "sid-DDA7657B-723B-4ECE-A4FC-EBD2221875DD"
+      }
+    },
+    {
+      "resourceId": "sid-E1BE5653-D85F-4688-AA53-7BDBA385C628",
+      "properties": {
+        "overrideid": "",
+        "name": "Rejected",
+        "documentation": "",
+        "conditionsequenceflow": {
+          "expression": {
+            "type": "variables",
+            "operator": "==",
+            "outcomeFormId": 3,
+            "outcomeFormName": "Approve Invoice",
+            "rightOutcomeName": "Reject",
+            "rightOutcomeFormId": 3,
+            "rightOutcomeFormName": "Approve Invoice"
+          }
+        },
+        "executionlisteners": "",
+        "defaultflow": "false"
+      },
+      "stencil": {
+        "id": "SequenceFlow"
+      },
+      "childShapes": [],
+      "outgoing": [
+        {
+          "resourceId": "sid-7881C278-D026-4861-A145-9482D5812195"
+        }
+      ],
+      "bounds": {
+        "lowerRight": {
+          "x": 370.42615395315545,
+          "y": 289.60156874299616
+        },
+        "upperLeft": {
+          "x": 370.14415854684455,
+          "y": 209.79686875700386
+        }
+      },
+      "dockers": [
+        {
+          "x": 20.5,
+          "y": 20.5
+        },
+        {
+          "x": 50,
+          "y": 40
+        }
+      ],
+      "target": {
+        "resourceId": "sid-7881C278-D026-4861-A145-9482D5812195"
+      }
+    },
+    {
+      "resourceId": "sid-A1F0D372-C9AE-4C09-8E73-259B8DEE7984",
+      "properties": {
+        "overrideid": "preparePayment",
+        "name": "Prepare Payment",
+        "documentation": "",
+        "asynchronousdefinition": "false",
+        "exclusivedefinition": "false",
+        "executionlisteners": "",
+        "multiinstance_type": "None",
+        "multiinstance_cardinality": "",
+        "multiinstance_collection": "",
+        "multiinstance_variable": "",
+        "multiinstance_condition": "",
+        "isforcompensation": "false",
+        "usertasksendemail": true,
+        "usertaskassignment": {
+          "assignment": {
+            "type": "idm",
+            "idm": {
+              "type": "groups",
+              "candidateGroups": [
+                {
+                  "id": 1001,
+                  "name": "Accounting",
+                  "externalId": null,
+                  "status": "active",
+                  "groups": null,
+                  "$$hashKey": "object:1394"
+                }
+              ]
+            }
+          }
+        },
+        "formkeydefinition": "",
+        "formreference": {
+          "id": 1001,
+          "name": "Prepare Payment",
+          "referenceId": 1
+        },
+        "fieldstovariables": "",
+        "duedatedefinition": "",
+        "prioritydefinition": "",
+        "categorydefinition": "",
+        "formproperties": "",
+        "tasklisteners": {
+          "taskListeners": [
+            {
+              "event": "create",
+              "implementation": "org.activiti.engine.impl.bpmn.listener.ScriptTaskListener",
+              "className": "org.activiti.engine.impl.bpmn.listener.ScriptTaskListener",
+              "expression": "",
+              "delegateExpression": "",
+              "fields": [
+                {
+                  "name": "script",
+                  "implementation": "var execution = task.getExecution();\nvar isEscalated = execution.getVariable('preparePaymentEscalated');\nvar invoiceFileName = execution.getVariable('invoiceFileName');\nvar taskDescription = \"Prepare Payment for \" + invoiceFileName;\nif (typeof isEscalated != 'undefined' && isEscalated == true) {\n    taskDescription = \"ESCALATED: \" + taskDescription;\n}\ntask.name = taskDescription;",
+                  "stringValue": "",
+                  "expression": "",
+                  "string": "var execution = task.getExecution();\nvar isEscalated = execution.getVariable('preparePaymentEscalated');\nvar invoiceFileName = execution.getVariable('invoiceFileName');\nvar taskDescription = \"Prepare Payment for \" + invoiceFileName;\nif (typeof isEscalated != 'undefined' && isEscalated == true) {\n    taskDescription = \"ESCALATED: \" + taskDescription;\n}\ntask.name = taskDescription;",
+                  "$$hashKey": "uiGrid-001L"
+                },
+                {
+                  "name": "language",
+                  "implementation": "javascript",
+                  "stringValue": "javascript",
+                  "expression": "",
+                  "string": "",
+                  "$$hashKey": "uiGrid-001N"
+                }
+              ],
+              "$$hashKey": "uiGrid-001B"
+            }
+          ]
+        },
+        "emailtemplate": ""
+      },
+      "stencil": {
+        "id": "UserTask"
+      },
+      "childShapes": [],
+      "outgoing": [
+        {
+          "resourceId": "sid-97D88681-3BA0-45BE-BB0A-4354A0884921"
+        },
+        {
+          "resourceId": "sid-32971BD5-72D6-4923-B167-2472589908A9"
+        }
+      ],
+      "bounds": {
+        "lowerRight": {
+          "x": 598.75,
+          "y": 350
+        },
+        "upperLeft": {
+          "x": 498.75,
+          "y": 270
+        }
+      },
+      "dockers": []
+    },
+    {
+      "resourceId": "sid-E3E736B6-8B7F-405C-844B-816AD6858A05",
+      "properties": {
+        "overrideid": "",
+        "name": "Approved",
+        "documentation": "",
+        "conditionsequenceflow": {
+          "expression": {
+            "type": "variables",
+            "operator": "==",
+            "outcomeFormId": 3,
+            "outcomeFormName": "Approve Invoice",
+            "rightOutcomeName": "Approve",
+            "rightOutcomeFormId": 3,
+            "rightOutcomeFormName": "Approve Invoice"
+          }
+        },
+        "executionlisteners": "",
+        "defaultflow": "false"
+      },
+      "stencil": {
+        "id": "SequenceFlow"
+      },
+      "childShapes": [],
+      "outgoing": [
+        {
+          "resourceId": "sid-A1F0D372-C9AE-4C09-8E73-259B8DEE7984"
+        }
+      ],
+      "bounds": {
+        "lowerRight": {
+          "x": 498.313480496627,
+          "y": 310.44446058694706
+        },
+        "upperLeft": {
+          "x": 390.299800753373,
+          "y": 310.14147691305294
+        }
+      },
+      "dockers": [
+        {
+          "x": 20.5,
+          "y": 20.5
+        },
+        {
+          "x": 50,
+          "y": 40
+        }
+      ],
+      "target": {
+        "resourceId": "sid-A1F0D372-C9AE-4C09-8E73-259B8DEE7984"
+      }
+    },
+    {
+      "resourceId": "sid-AD13E6C6-02D8-4F34-9493-56F415729255",
+      "properties": {
+        "overrideid": "fileInvoice",
+        "name": "File Invoice",
+        "documentation": "",
+        "asynchronousdefinition": "false",
+        "exclusivedefinition": "false",
+        "executionlisteners": "",
+        "multiinstance_type": "None",
+        "multiinstance_cardinality": "",
+        "multiinstance_collection": "",
+        "multiinstance_variable": "",
+        "multiinstance_condition": "",
+        "isforcompensation": "false",
+        "servicetaskclass": "",
+        "servicetaskexpression": "",
+        "servicetaskdelegateexpression": "${fileInvoiceServiceTaskDelegate}",
+        "servicetaskfields": {
+          "fields": [
+            {
+              "name": "companyEmail",
+              "implementation": "${companyemail}",
+              "stringValue": "",
+              "expression": "${companyemail}",
+              "string": "",
+              "$$hashKey": "uiGrid-001D"
+            },
+            {
+              "name": "invoiceToFile",
+              "implementation": "${invoicetobeapproved}",
+              "stringValue": "",
+              "expression": "${invoicetobeapproved}",
+              "string": "",
+              "$$hashKey": "uiGrid-001L"
+            }
+          ]
+        },
+        "servicetaskresultvariable": "",
+        "executionvariables": ""
+      },
+      "stencil": {
+        "id": "ServiceTask"
+      },
+      "childShapes": [],
+      "outgoing": [
+        {
+          "resourceId": "sid-B76B8F48-3830-4DCD-8FE1-8890BDB4777A"
+        }
+      ],
+      "bounds": {
+        "lowerRight": {
+          "x": 598.75,
+          "y": 515
+        },
+        "upperLeft": {
+          "x": 498.75,
+          "y": 435
+        }
+      },
+      "dockers": []
+    },
+    {
+      "resourceId": "sid-32971BD5-72D6-4923-B167-2472589908A9",
+      "properties": {
+        "overrideid": "",
+        "name": "",
+        "documentation": "",
+        "conditionsequenceflow": "",
+        "executionlisteners": "",
+        "defaultflow": "false",
+        "showdiamondmarker": false
+      },
+      "stencil": {
+        "id": "SequenceFlow"
+      },
+      "childShapes": [],
+      "outgoing": [
+        {
+          "resourceId": "sid-AD13E6C6-02D8-4F34-9493-56F415729255"
+        }
+      ],
+      "bounds": {
+        "lowerRight": {
+          "x": 548.75,
+          "y": 434.625
+        },
+        "upperLeft": {
+          "x": 548.75,
+          "y": 350.984375
+        }
+      },
+      "dockers": [
+        {
+          "x": 50,
+          "y": 79
+        },
+        {
+          "x": 50,
+          "y": 40
+        }
+      ],
+      "target": {
+        "resourceId": "sid-AD13E6C6-02D8-4F34-9493-56F415729255"
+      }
+    },
+    {
+      "resourceId": "sid-97D88681-3BA0-45BE-BB0A-4354A0884921",
+      "properties": {
+        "overrideid": "escalatePreparePayment",
+        "name": "Escalate task",
+        "documentation": "",
+        "timercycledefinition": "",
+        "timerdatedefinition": "",
+        "timerdurationdefinition": "PT2M",
+        "cancelactivity": true
+      },
+      "stencil": {
+        "id": "BoundaryTimerEvent"
+      },
+      "childShapes": [],
+      "outgoing": [
+        {
+          "resourceId": "sid-E174B2BB-83BF-4443-893A-A411488FE30A"
+        }
+      ],
+      "bounds": {
+        "lowerRight": {
+          "x": 613.7585358751163,
+          "y": 365.725685398532
+        },
+        "upperLeft": {
+          "x": 582.7585358751163,
+          "y": 334.725685398532
+        }
+      },
+      "dockers": [
+        {
+          "x": 98,
+          "y": 79
+        }
+      ]
+    },
+    {
+      "resourceId": "sid-1093876B-D83A-4049-BCA8-01C3DCE79340",
+      "properties": {
+        "overrideid": "sendApprovalEmail",
+        "name": "Send Approval Email",
+        "documentation": "",
+        "asynchronousdefinition": "false",
+        "exclusivedefinition": "false",
+        "executionlisteners": "",
+        "multiinstance_type": "None",
+        "multiinstance_cardinality": "",
+        "multiinstance_collection": "",
+        "multiinstance_variable": "",
+        "multiinstance_condition": "",
+        "isforcompensation": "false",
+        "mailtaskto": {
+          "mailTo": {
+            "type": "initiator"
+          }
+        },
+        "mailtaskfrom": "activiti@mycompany.com",
+        "mailtasksubject": "Invoice Approved for Payment",
+        "mailtaskcc": "${companyemail}",
+        "mailtaskbcc": "",
+        "mailtasktext": "Invoice Approved for Payment",
+        "mailtaskhtml": "",
+        "mailtaskcharset": ""
+      },
+      "stencil": {
+        "id": "MailTask"
+      },
+      "childShapes": [],
+      "outgoing": [
+        {
+          "resourceId": "sid-30162F38-6CE2-469A-8F74-C2DDA954ACDF"
+        }
+      ],
+      "bounds": {
+        "lowerRight": {
+          "x": 760,
+          "y": 515
+        },
+        "upperLeft": {
+          "x": 660,
+          "y": 435
+        }
+      },
+      "dockers": []
+    },
+    {
+      "resourceId": "sid-B76B8F48-3830-4DCD-8FE1-8890BDB4777A",
+      "properties": {
+        "overrideid": "",
+        "name": "",
+        "documentation": "",
+        "conditionsequenceflow": "",
+        "executionlisteners": "",
+        "defaultflow": "false"
+      },
+      "stencil": {
+        "id": "SequenceFlow"
+      },
+      "childShapes": [],
+      "outgoing": [
+        {
+          "resourceId": "sid-1093876B-D83A-4049-BCA8-01C3DCE79340"
+        }
+      ],
+      "bounds": {
+        "lowerRight": {
+          "x": 659.869140625,
+          "y": 475
+        },
+        "upperLeft": {
+          "x": 598.880859375,
+          "y": 475
+        }
+      },
+      "dockers": [
+        {
+          "x": 50,
+          "y": 40
+        },
+        {
+          "x": 50,
+          "y": 40
+        }
+      ],
+      "target": {
+        "resourceId": "sid-1093876B-D83A-4049-BCA8-01C3DCE79340"
+      }
+    },
+    {
+      "resourceId": "sid-30162F38-6CE2-469A-8F74-C2DDA954ACDF",
+      "properties": {
+        "overrideid": "",
+        "name": "",
+        "documentation": "",
+        "conditionsequenceflow": "",
+        "executionlisteners": "",
+        "defaultflow": "false"
+      },
+      "stencil": {
+        "id": "SequenceFlow"
+      },
+      "childShapes": [],
+      "outgoing": [
+        {
+          "resourceId": "sid-DDA7657B-723B-4ECE-A4FC-EBD2221875DD"
+        }
+      ],
+      "bounds": {
+        "lowerRight": {
+          "x": 794,
+          "y": 475
+        },
+        "upperLeft": {
+          "x": 760.875,
+          "y": 324.53515625
+        }
+      },
+      "dockers": [
+        {
+          "x": 50,
+          "y": 40
+        },
+        {
+          "x": 794,
+          "y": 475
+        },
+        {
+          "x": 14,
+          "y": 14
+        }
+      ],
+      "target": {
+        "resourceId": "sid-DDA7657B-723B-4ECE-A4FC-EBD2221875DD"
+      }
+    },
+    {
+      "resourceId": "sid-39DF518F-67D6-4026-A426-5CB473AA8812",
+      "properties": {
+        "overrideid": "",
+        "name": "",
+        "documentation": "",
+        "conditionsequenceflow": "",
+        "executionlisteners": "",
+        "defaultflow": "false"
+      },
+      "stencil": {
+        "id": "SequenceFlow"
+      },
+      "childShapes": [],
+      "outgoing": [
+        {
+          "resourceId": "sid-CAB02718-6E2B-43BC-9BE3-56051673765D"
+        }
+      ],
+      "bounds": {
+        "lowerRight": {
+          "x": 349.6640625,
+          "y": 310
+        },
+        "upperLeft": {
+          "x": 255.62890625,
+          "y": 310
+        }
+      },
+      "dockers": [
+        {
+          "x": 50,
+          "y": 40
+        },
+        {
+          "x": 20,
+          "y": 20
+        }
+      ],
+      "target": {
+        "resourceId": "sid-CAB02718-6E2B-43BC-9BE3-56051673765D"
+      }
+    },
+    {
+      "resourceId": "sid-E8390411-BE83-4854-A63F-A12927F29D86",
+      "properties": {
+        "overrideid": "",
+        "name": "",
+        "documentation": "",
+        "conditionsequenceflow": "",
+        "executionlisteners": null,
+        "defaultflow": "false"
+      },
+      "stencil": {
+        "id": "SequenceFlow"
+      },
+      "childShapes": [],
+      "outgoing": [
+        {
+          "resourceId": "sid-0B19FE33-967B-4C3A-8DC4-E7D7C6B7069A"
+        }
+      ],
+      "bounds": {
+        "lowerRight": {
+          "x": 154.15625,
+          "y": 310
+        },
+        "upperLeft": {
+          "x": 75.7265625,
+          "y": 310
+        }
+      },
+      "dockers": [
+        {
+          "x": 15,
+          "y": 15
+        },
+        {
+          "x": 50,
+          "y": 40
+        }
+      ],
+      "target": {
+        "resourceId": "sid-0B19FE33-967B-4C3A-8DC4-E7D7C6B7069A"
+      }
+    },
+    {
+      "resourceId": "sid-E174B2BB-83BF-4443-893A-A411488FE30A",
+      "properties": {
+        "overrideid": "",
+        "name": "Escalate",
+        "documentation": "",
+        "conditionsequenceflow": "",
+        "executionlisteners": {
+          "executionListeners": [
+            {
+              "event": "take",
+              "implementation": "org.activiti.engine.impl.bpmn.listener.ScriptExecutionListener",
+              "className": "org.activiti.engine.impl.bpmn.listener.ScriptExecutionListener",
+              "expression": "",
+              "delegateExpression": "",
+              "fields": [
+                {
+                  "name": "script",
+                  "implementation": "execution.setVariable('preparePaymentEscalated', true);",
+                  "stringValue": "",
+                  "expression": "",
+                  "string": "execution.setVariable('preparePaymentEscalated', true);",
+                  "$$hashKey": "uiGrid-005T"
+                },
+                {
+                  "name": "language",
+                  "implementation": "javascript",
+                  "stringValue": "javascript",
+                  "expression": "",
+                  "string": "",
+                  "$$hashKey": "uiGrid-005V"
+                }
+              ],
+              "$$hashKey": "uiGrid-005J"
+            }
+          ]
+        },
+        "defaultflow": "false",
+        "showdiamondmarker": false
+      },
+      "stencil": {
+        "id": "SequenceFlow"
+      },
+      "childShapes": [],
+      "outgoing": [
+        {
+          "resourceId": "sid-A1F0D372-C9AE-4C09-8E73-259B8DEE7984"
+        }
+      ],
+      "bounds": {
+        "lowerRight": {
+          "x": 654.5,
+          "y": 348
+        },
+        "upperLeft": {
+          "x": 599.3202677925266,
+          "y": 310.4782058420097
+        }
+      },
+      "dockers": [
+        {
+          "x": 26.99146412488369,
+          "y": 13.274314601468006
+        },
+        {
+          "x": 654.5,
+          "y": 348
+        },
+        {
+          "x": 654.5,
+          "y": 311
+        },
+        {
+          "x": 50,
+          "y": 40
+        }
+      ],
+      "target": {
+        "resourceId": "sid-A1F0D372-C9AE-4C09-8E73-259B8DEE7984"
+      }
+    }
+  ],
+  "bounds": {
+    "lowerRight": {
+      "x": 1200,
+      "y": 1050
+    },
+    "upperLeft": {
+      "x": 0,
+      "y": 0
+    }
+  },
+  "stencilset": {
+    "url": "stencilsets/bpmn2.0/bpmn2.0.json",
+    "namespace": "http://b3mn.org/stencilset/bpmn2.0#"
+  },
+  "ssextensions": []
+}
